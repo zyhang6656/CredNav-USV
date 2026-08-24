@@ -1,0 +1,92 @@
+run:
+  name: colregs_mpc_baseline_obs3_6
+  output_root: runs/colregs_mpc_baseline
+  seed: 0
+
+data:
+  eval_sources:
+    - label: obs3
+      scenario_dir: simple_boat/assets/eval3_new_map
+      kf_cache_dir: results/kf_cache/obs3_delay20_cov100_binned_s10_shared
+    - label: obs4
+      scenario_dir: simple_boat/assets/eval4_new_map
+      kf_cache_dir: results/kf_cache/obs4_delay20_cov100_binned_s10_shared
+    - label: obs5
+      scenario_dir: simple_boat/assets/eval5_new_map
+      kf_cache_dir: results/kf_cache/obs5_delay20_cov100_binned_s10_shared
+    - label: obs6
+      scenario_dir: simple_boat/assets/eval6_new_map
+      kf_cache_dir: results/kf_cache/obs6_delay20_cov100_binned_s10_shared
+
+env:
+  max_episode_steps: 512
+  dt: 0.1
+  init_goal_threshold: 1.0
+  init_collision_threshold: 1.6
+  use_filter: true
+
+noise:
+  nominal_position_std: 0.10
+  nominal_velocity_std: 0.03
+  burst_enabled: true
+  burst_episode_prob: 1.0
+  burst_duration_steps: 30
+  measurement_cov_scale: 100
+  measurement_delay_steps: 20
+  bias_enabled: false
+  bias_position_y: 0.0
+  bias_duration_steps: 0
+  start_mode: path_progress_binned_candidate
+  path_progress_arrival_steps: 230
+  path_progress_candidate_stride: 10
+  risk_distance_threshold: 10.0
+  tcpa_horizon: 12.0
+
+trust:
+  mode: oracle_tmse
+  t_min: 0.05
+  t_max: 1.0
+  aggregate: min_over_risk_active
+  risk_distance_threshold: 10.0
+  tcpa_horizon: 12.0
+
+reward:
+  actual_clearance_weight: 0.0
+
+civo:
+  enabled: false
+  shield_enabled: false
+
+rc_colregs:
+  enabled: true
+  reward_weight: 0.0
+  d_safe: 3.0
+  tau: 10.0
+  kappa: 60.0
+
+colregs_mpc:
+  horizon_steps: 51
+  safety_distance: 2.0
+  warning_distance: 6.0
+  yaw_rate_scale: 0.8
+  cruise_action: 0.65
+  prediction_dt: 0.2
+  control_period: 0.2
+  integration_substeps: 2
+  encounter_radius: 16.0
+  emergency_radius: 8.0
+  head_on_course_deg: 14.3239448783
+  optimizer_maxiter: 100
+  reference_speed: 0.8
+  q_contour: 0.1
+  q_lag: 0.001
+  q_speed: 1.0
+  q_speed_em: 0.01
+  q_lateral_velocity: 0.25
+  q_control_surge: 0.0001
+  q_control_yaw: 0.003
+  colregs_alpha_gw: 0.97
+  colregs_alpha_em: 0.05
+  ov_length: 2.0
+  ov_width: 1.08
+  geometry_margin_scale: 0.85

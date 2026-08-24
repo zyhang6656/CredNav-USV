@@ -1,0 +1,92 @@
+run:
+  name: dqn_vo_uncertain_mixed_obs3_6
+  output_root: runs/dqn_vo_baseline
+  seed: 0
+
+data:
+  train_mix_mode: parallel_equal_obs_count_sources
+  train_sources:
+    - label: obs3
+      scenario_dir: simple_boat/assets/nav3_new_map
+      kf_cache_dir: results/kf_cache/obs3_delay20_cov100_binned_s10_shared
+    - label: obs4
+      scenario_dir: simple_boat/assets/nav4_new_map
+      kf_cache_dir: results/kf_cache/obs4_delay20_cov100_binned_s10_shared
+    - label: obs5
+      scenario_dir: simple_boat/assets/nav5_new_map
+      kf_cache_dir: results/kf_cache/obs5_delay20_cov100_binned_s10_shared
+    - label: obs6
+      scenario_dir: simple_boat/assets/nav6_new_map
+      kf_cache_dir: results/kf_cache/obs6_delay20_cov100_binned_s10_shared
+  eval_sources:
+    - label: obs3
+      scenario_dir: simple_boat/assets/eval3_new_map
+      kf_cache_dir: results/kf_cache/obs3_delay20_cov100_binned_s10_shared
+    - label: obs4
+      scenario_dir: simple_boat/assets/eval4_new_map
+      kf_cache_dir: results/kf_cache/obs4_delay20_cov100_binned_s10_shared
+    - label: obs5
+      scenario_dir: simple_boat/assets/eval5_new_map
+      kf_cache_dir: results/kf_cache/obs5_delay20_cov100_binned_s10_shared
+    - label: obs6
+      scenario_dir: simple_boat/assets/eval6_new_map
+      kf_cache_dir: results/kf_cache/obs6_delay20_cov100_binned_s10_shared
+
+env:
+  max_episode_steps: 512
+  dt: 0.1
+  init_goal_threshold: 1.0
+  init_collision_threshold: 1.6
+  use_filter: true
+
+noise:
+  nominal_position_std: 0.10
+  nominal_velocity_std: 0.03
+  burst_enabled: true
+  burst_episode_prob: 1.0
+  burst_duration_steps: 30
+  measurement_cov_scale: 100
+  measurement_delay_steps: 20
+  bias_enabled: false
+  bias_position_y: 0.0
+  bias_duration_steps: 0
+  start_mode: path_progress_binned_candidate
+  path_progress_arrival_steps: 230
+  path_progress_candidate_stride: 10
+  risk_distance_threshold: 10.0
+  tcpa_horizon: 12.0
+
+trust:
+  mode: oracle_tmse
+  t_min: 0.05
+  t_max: 1.0
+  aggregate: min_over_risk_active
+  risk_distance_threshold: 10.0
+  tcpa_horizon: 12.0
+
+reward:
+  actual_clearance_weight: 0.0
+
+civo:
+  enabled: false
+  shield_enabled: false
+
+rc_colregs:
+  enabled: false
+  reward_weight: 0.0
+
+dqn_vo:
+  fixed_surge: 0.7
+  yaw_command: 0.45
+
+dqn:
+  max_timesteps: 5000000
+  smoke_timesteps: 20000
+  checkpoint_freq_steps: 500000
+  learning_rate: 0.0001
+  gamma: 0.99
+  buffer_size: 1000000
+  batch_size: 1024
+  target_update_interval: 10000
+  exploration_final_eps: 0.1
+  learning_starts: 10000

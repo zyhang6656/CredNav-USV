@@ -1,0 +1,99 @@
+run:
+  name: lag_u_usv_absq_linear_cost_mixed_obs3_6_resumable
+  output_root: runs/lag_u_baseline
+  seed: 0
+
+data:
+  train_mix_mode: parallel_equal_obs_count_sources
+  train_sources:
+    - label: obs3
+      scenario_dir: simple_boat/assets/nav3_new_map
+      kf_cache_dir: results/kf_cache/obs3_delay20_cov100_binned_s10_shared
+    - label: obs4
+      scenario_dir: simple_boat/assets/nav4_new_map
+      kf_cache_dir: results/kf_cache/obs4_delay20_cov100_binned_s10_shared
+    - label: obs5
+      scenario_dir: simple_boat/assets/nav5_new_map
+      kf_cache_dir: results/kf_cache/obs5_delay20_cov100_binned_s10_shared
+    - label: obs6
+      scenario_dir: simple_boat/assets/nav6_new_map
+      kf_cache_dir: results/kf_cache/obs6_delay20_cov100_binned_s10_shared
+  eval_sources:
+    - label: obs3
+      scenario_dir: simple_boat/assets/eval3_new_map
+      kf_cache_dir: results/kf_cache/obs3_delay20_cov100_binned_s10_shared
+    - label: obs4
+      scenario_dir: simple_boat/assets/eval4_new_map
+      kf_cache_dir: results/kf_cache/obs4_delay20_cov100_binned_s10_shared
+    - label: obs5
+      scenario_dir: simple_boat/assets/eval5_new_map
+      kf_cache_dir: results/kf_cache/obs5_delay20_cov100_binned_s10_shared
+    - label: obs6
+      scenario_dir: simple_boat/assets/eval6_new_map
+      kf_cache_dir: results/kf_cache/obs6_delay20_cov100_binned_s10_shared
+
+env:
+  max_episode_steps: 512
+  dt: 0.1
+  init_goal_threshold: 1.0
+  init_collision_threshold: 1.6
+  use_filter: true
+
+noise:
+  nominal_position_std: 0.10
+  nominal_velocity_std: 0.03
+  burst_enabled: true
+  burst_episode_prob: 1.0
+  burst_duration_steps: 30
+  measurement_cov_scale: 100
+  measurement_delay_steps: 20
+  bias_enabled: false
+  bias_position_y: 0.0
+  bias_duration_steps: 0
+  start_mode: path_progress_binned_candidate
+  path_progress_arrival_steps: 230
+  path_progress_candidate_stride: 10
+  risk_distance_threshold: 10.0
+  tcpa_horizon: 12.0
+
+reward:
+  actual_clearance_weight: 0.0
+
+civo:
+  enabled: false
+  shield_enabled: false
+
+rc_colregs:
+  enabled: false
+  reward_weight: 0.0
+
+lag_u:
+  n_envs: 4
+  max_timesteps: 1000000
+  smoke_timesteps: 128
+  checkpoint_freq_steps: 500000
+  state_checkpoint_freq_steps: 500000
+  log_freq_steps: 10000
+  hidden_dims: [256, 256]
+  ensemble_members: 3
+  actor_learning_rate: 0.0003
+  critic_learning_rate: 0.0003
+  lagrange_learning_rate: 0.00001
+  gamma: 0.99
+  cost_gamma: 0.99
+  base_cost_bound: 0.1
+  uncertainty_threshold: 0.07
+  exploration_tc: 300000
+  exploration_minimum: 0.1
+  batch_size: 256
+  buffer_size: 1000000
+  learning_starts: 25000
+  train_freq_steps: 1
+  policy_delay: 2
+  target_tau: 0.005
+  target_policy_noise: 0.2
+  target_noise_clip: 0.5
+  smoke_batch_size: 16
+  smoke_buffer_size: 1024
+  smoke_learning_starts: 32
+  device: cuda

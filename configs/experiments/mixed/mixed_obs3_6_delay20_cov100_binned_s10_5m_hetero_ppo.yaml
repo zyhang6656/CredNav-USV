@@ -1,0 +1,99 @@
+experiment_name: mixed_obs3_6_hetero_ppo_scratch
+algo: hetero_ppo
+train_steps: 5000000
+
+data:
+  train_mix_mode: parallel_equal_obs_count_sources
+  train_sources:
+    - label: obs3
+      scenario_dir: simple_boat/assets/nav3_new_map
+      kf_cache_dir: results/kf_cache/obs3_delay20_cov100_binned_s10_shared
+    - label: obs4
+      scenario_dir: simple_boat/assets/nav4_new_map
+      kf_cache_dir: results/kf_cache/obs4_delay20_cov100_binned_s10_shared
+    - label: obs5
+      scenario_dir: simple_boat/assets/nav5_new_map
+      kf_cache_dir: results/kf_cache/obs5_delay20_cov100_binned_s10_shared
+    - label: obs6
+      scenario_dir: simple_boat/assets/nav6_new_map
+      kf_cache_dir: results/kf_cache/obs6_delay20_cov100_binned_s10_shared
+  eval_scenario_dir: simple_boat/assets/mixed_eval3_6_new_map_20260707
+
+run:
+  run_root: runs/mixed_obs3_6_hetero_ppo_5m
+  run_tag: hetero_ppo_equal4src_obs3_6_scratch_5m_seed0
+
+env:
+  max_episode_steps: 512
+  dt: 0.1
+  init_goal_threshold: 1.0
+  init_collision_threshold: 1.6
+  use_filter: true
+
+noise:
+  nominal_position_std: 0.10
+  nominal_velocity_std: 0.03
+  burst_enabled: true
+  burst_episode_prob: 1.0
+  burst_duration_steps: 30
+  measurement_cov_scale: 100
+  measurement_delay_steps: 20
+  bias_enabled: false
+  bias_position_y: 0.0
+  bias_duration_steps: 0
+  start_mode: path_progress_binned_candidate
+  path_progress_arrival_steps: 230
+  path_progress_candidate_stride: 10
+  risk_distance_threshold: 10.0
+  tcpa_horizon: 12.0
+
+cache:
+  kf_cache_dir:
+    - results/kf_cache/obs3_delay20_cov100_binned_s10_shared
+    - results/kf_cache/obs4_delay20_cov100_binned_s10_shared
+    - results/kf_cache/obs5_delay20_cov100_binned_s10_shared
+    - results/kf_cache/obs6_delay20_cov100_binned_s10_shared
+  kf_cache_mode: read_strict
+
+trust:
+  mode: oracle_tmse
+  t_min: 0.05
+  t_max: 1.0
+  aggregate: min_over_risk_active
+  risk_distance_threshold: 10.0
+  tcpa_horizon: 12.0
+
+reward:
+  success_bonus: 200.0
+  collision_penalty: -300.0
+  timeout_penalty: -50.0
+  progress_weight: 30.0
+  cte_penalty_weight: 0.1
+  time_penalty: -0.01
+  near_risk_weight: 3.0
+
+ppo:
+  n_envs: 4
+  rollout_steps: 1024
+  batch_size: 2048
+  epochs: 4
+  learning_rate_initial: 3.0e-4
+  learning_rate_final: 5.0e-5
+  lr_schedule: linear_floor
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.15
+  entropy_coef: 0.02
+  vf_coef: 0.5
+  target_kl: 0.03
+  max_grad_norm: 0.5
+
+critic:
+  freeze_sigma: false
+
+eval:
+  eval_freq_steps: 500000
+  n_eval_episodes: 200
+
+features:
+  dim: 128
